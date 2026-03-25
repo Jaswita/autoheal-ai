@@ -1,0 +1,52 @@
+[
+  {
+    "id": "log_001",
+    "timestamp": "2026-03-26T00:00:00",
+    "service": "nginx",
+    "status": "down",
+    "cpu": 45,
+    "memory": 60,
+    "error": "connection refused",
+    "host": "prod-server-01"
+  },
+  {
+    "id": "log_002",
+    "timestamp": "2026-03-26T00:01:00",
+    "service": "api-gateway",
+    "status": "running",
+    "cpu": 94,
+    "memory": 72,
+    "error": null,
+    "host": "prod-server-02"
+  },
+  {
+    "id": "log_003",
+    "timestamp": "2026-03-26T00:02:00",
+    "service": "database",
+    "status": "down",
+    "cpu": 30,
+    "memory": 95,
+    "error": "out of memory",
+    "host": "prod-db-01"
+  },
+  {
+    "id": "log_004",
+    "timestamp": "2026-03-26T00:03:00",
+    "service": "redis",
+    "status": "running",
+    "cpu": 20,
+    "memory": 40,
+    "error": null,
+    "host": "prod-cache-01"
+  },
+  {
+    "id": "log_005",
+    "timestamp": "2026-03-26T00:04:00",
+    "service": "worker",
+    "status": "down",
+    "cpu": 88,
+    "memory": 78,
+    "error": "timeout exceeded",
+    "host": "prod-worker-01"
+  }
+]

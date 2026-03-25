@@ -1,0 +1,396 @@
+[
+  {
+    "run_id": "09daa395-464a-46c6-a1eb-119b7d701f81",
+    "timestamp": "2026-03-25T18:56:35.893949Z",
+    "input_log": {
+      "id": "log_2789",
+      "timestamp": "2026-03-25T18:56:35.876221",
+      "service": "database",
+      "status": "running",
+      "cpu": 88,
+      "memory": 29,
+      "error": null,
+      "host": "prod-db-01"
+    },
+    "monitor": {
+      "anomaly_detected": false,
+      "anomalies": []
+    },
+    "decision": {
+      "issue": "none",
+      "severity": "none",
+      "action_required": false,
+      "recommended_action": "no_action"
+    },
+    "execution": {
+      "action_taken": "no_action",
+      "source": "playbook",
+      "fix_detail": "System healthy \u2013 no action required.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "No anomaly detected \u2013 system was already healthy.",
+      "checks": []
+    }
+  },
+  {
+    "run_id": "1bccbb20-930e-4f6c-aadf-ec2cada69d47",
+    "timestamp": "2026-03-25T18:58:12.978533Z",
+    "input_log": {
+      "id": "log_7232",
+      "timestamp": "2026-03-25T18:58:12.977608",
+      "service": "redis",
+      "status": "running",
+      "cpu": 23,
+      "memory": 11,
+      "error": null,
+      "host": "prod-cache-01"
+    },
+    "monitor": {
+      "anomaly_detected": false,
+      "anomalies": []
+    },
+    "decision": {
+      "issue": "none",
+      "severity": "none",
+      "action_required": false,
+      "recommended_action": "no_action"
+    },
+    "execution": {
+      "action_taken": "no_action",
+      "source": "playbook",
+      "fix_detail": "System healthy \u2013 no action required.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "No anomaly detected \u2013 system was already healthy.",
+      "checks": []
+    }
+  },
+  {
+    "run_id": "6812ffcd-eb0b-4c79-9ca4-e3a5d9f0cec5",
+    "timestamp": "2026-03-25T18:58:25.883624Z",
+    "input_log": {
+      "id": "log_4636",
+      "timestamp": "2026-03-25T18:58:25.882668",
+      "service": "api-gateway",
+      "status": "running",
+      "cpu": 74,
+      "memory": 74,
+      "error": null,
+      "host": "prod-worker-01"
+    },
+    "monitor": {
+      "anomaly_detected": false,
+      "anomalies": []
+    },
+    "decision": {
+      "issue": "none",
+      "severity": "none",
+      "action_required": false,
+      "recommended_action": "no_action"
+    },
+    "execution": {
+      "action_taken": "no_action",
+      "source": "playbook",
+      "fix_detail": "System healthy \u2013 no action required.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "No anomaly detected \u2013 system was already healthy.",
+      "checks": []
+    }
+  },
+  {
+    "run_id": "2d60b32a-93f6-41a7-9b9c-a2c0d5d117d0",
+    "timestamp": "2026-03-25T19:02:23.278411Z",
+    "input_log": {
+      "id": "log_8218",
+      "timestamp": "2026-03-25T19:02:23.274031",
+      "service": "worker",
+      "status": "running",
+      "cpu": 56,
+      "memory": 99,
+      "error": null,
+      "host": "prod-server-02"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "high_memory:99%"
+      ]
+    },
+    "decision": {
+      "issue": "worker_high_memory",
+      "severity": "high",
+      "action_required": true,
+      "recommended_action": "reduce_memory_worker"
+    },
+    "execution": {
+      "action_taken": "Free memory: kill largest memory consumer on worker, then restart service.",
+      "source": "fallback",
+      "fix_detail": "AI unavailable \u2013 rule-based remediation applied.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "Issue 'worker_high_memory' successfully resolved.",
+      "checks": [
+        {
+          "check": "cpu_usage",
+          "before": "56%",
+          "after": "15%",
+          "passed": true
+        },
+        {
+          "check": "memory_usage",
+          "before": "99%",
+          "after": "49%",
+          "passed": true
+        },
+        {
+          "check": "service_status",
+          "before": "running",
+          "after": "running",
+          "passed": true
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "6d5a68c6-a1e2-4306-af9c-f4e9f5eed435",
+    "timestamp": "2026-03-25T19:02:23.301965Z",
+    "input_log": {
+      "id": "log_9993",
+      "timestamp": "2026-03-25T19:02:23.290668",
+      "service": "auth-service",
+      "status": "running",
+      "cpu": 91,
+      "memory": 55,
+      "error": null,
+      "host": "prod-cache-01"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "high_cpu:91%"
+      ]
+    },
+    "decision": {
+      "issue": "auth-service_high_cpu",
+      "severity": "medium",
+      "action_required": true,
+      "recommended_action": "throttle_cpu_auth-service"
+    },
+    "execution": {
+      "action_taken": "Throttle or restart auth-service to reduce CPU load; investigate processes.",
+      "source": "fallback",
+      "fix_detail": "AI unavailable \u2013 rule-based remediation applied.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "partial",
+      "resolved": false,
+      "message": "Partial recovery for 'auth-service_high_cpu' \u2013 some checks failed.",
+      "checks": [
+        {
+          "check": "cpu_usage",
+          "before": "91%",
+          "after": "91%",
+          "passed": false
+        },
+        {
+          "check": "memory_usage",
+          "before": "55%",
+          "after": "55%",
+          "passed": true
+        },
+        {
+          "check": "service_status",
+          "before": "running",
+          "after": "running",
+          "passed": true
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "909ed8fe-5792-4b19-bc44-0f895a82dc72",
+    "timestamp": "2026-03-25T19:02:23.331152Z",
+    "input_log": {
+      "id": "log_2051",
+      "timestamp": "2026-03-25T19:02:23.322801",
+      "service": "worker",
+      "status": "running",
+      "cpu": 91,
+      "memory": 54,
+      "error": null,
+      "host": "prod-db-01"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "high_cpu:91%"
+      ]
+    },
+    "decision": {
+      "issue": "worker_high_cpu",
+      "severity": "medium",
+      "action_required": true,
+      "recommended_action": "throttle_cpu_worker"
+    },
+    "execution": {
+      "action_taken": "kill $(pgrep -f worker) && systemctl start worker",
+      "source": "playbook",
+      "fix_detail": "Playbook fix applied for 'worker_high_cpu'.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "Issue 'worker_high_cpu' successfully resolved.",
+      "checks": [
+        {
+          "check": "cpu_usage",
+          "before": "91%",
+          "after": "39%",
+          "passed": true
+        },
+        {
+          "check": "memory_usage",
+          "before": "54%",
+          "after": "38%",
+          "passed": true
+        },
+        {
+          "check": "service_status",
+          "before": "running",
+          "after": "running",
+          "passed": true
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "7dce1613-9965-4bde-a432-2e9324924efa",
+    "timestamp": "2026-03-25T19:02:23.349164Z",
+    "input_log": {
+      "id": "log_3178",
+      "timestamp": "2026-03-25T19:02:23.344567",
+      "service": "worker",
+      "status": "running",
+      "cpu": 39,
+      "memory": 98,
+      "error": null,
+      "host": "prod-db-01"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "high_memory:98%"
+      ]
+    },
+    "decision": {
+      "issue": "worker_high_memory",
+      "severity": "high",
+      "action_required": true,
+      "recommended_action": "reduce_memory_worker"
+    },
+    "execution": {
+      "action_taken": "Free memory: kill largest memory consumer on worker, then restart service.",
+      "source": "fallback",
+      "fix_detail": "AI unavailable \u2013 rule-based remediation applied.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "Issue 'worker_high_memory' successfully resolved.",
+      "checks": [
+        {
+          "check": "cpu_usage",
+          "before": "39%",
+          "after": "6%",
+          "passed": true
+        },
+        {
+          "check": "memory_usage",
+          "before": "98%",
+          "after": "40%",
+          "passed": true
+        },
+        {
+          "check": "service_status",
+          "before": "running",
+          "after": "running",
+          "passed": true
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "2b383e08-9be3-4531-bdd2-cccff2fed706",
+    "timestamp": "2026-03-25T19:02:23.376702Z",
+    "input_log": {
+      "id": "log_4537",
+      "timestamp": "2026-03-25T19:02:23.366642",
+      "service": "nginx",
+      "status": "down",
+      "cpu": 44,
+      "memory": 69,
+      "error": "connection refused",
+      "host": "prod-worker-01"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "service_down:nginx",
+        "error_reported:connection refused"
+      ]
+    },
+    "decision": {
+      "issue": "nginx_down",
+      "severity": "high",
+      "action_required": true,
+      "recommended_action": "restart_nginx"
+    },
+    "execution": {
+      "action_taken": "systemctl restart nginx",
+      "source": "playbook",
+      "fix_detail": "Playbook fix applied for 'nginx_down'.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "Issue 'nginx_down' successfully resolved.",
+      "checks": [
+        {
+          "check": "cpu_usage",
+          "before": "44%",
+          "after": "18%",
+          "passed": true
+        },
+        {
+          "check": "memory_usage",
+          "before": "69%",
+          "after": "31%",
+          "passed": true
+        },
+        {
+          "check": "service_status",
+          "before": "down",
+          "after": "running",
+          "passed": true
+        }
+      ]
+    }
+  }
+]
