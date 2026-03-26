@@ -8,6 +8,7 @@ import os
 
 SERVICES = ["nginx", "api-gateway", "database", "redis", "worker", "auth-service", "message-queue"]
 HOSTS = ["prod-server-01", "prod-server-02", "prod-db-01", "prod-cache-01", "prod-worker-01"]
+
 ERRORS = {
     "nginx": ["connection refused", "502 bad gateway", "upstream timeout"],
     "api-gateway": ["rate limit exceeded", "upstream unreachable", "ssl handshake failed"],
@@ -19,48 +20,35 @@ ERRORS = {
 }
 
 
-def generate_log(
-    force_anomaly: bool = False,
-    service: str = None,
-    scenario: str = None
-) -> dict:
-    """
-    Generate a single simulated log entry.
-
-    Args:
-        force_anomaly: if True, guarantees an anomalous log (service down or high CPU/memory).
-        service: optionally pin which service to simulate.
-        scenario: one of 'high_cpu', 'service_down', 'high_memory', 'healthy'.
-    """
+def generate_log(force_anomaly=False, service=None, scenario=None):
     svc = service or random.choice(SERVICES)
     host = random.choice(HOSTS)
     ts = datetime.datetime.utcnow().isoformat()
 
     if scenario == "healthy":
         return _healthy_log(svc, host, ts)
-    if scenario == "high_cpu" or (force_anomaly and scenario is None and random.random() < 0.33):
+    if scenario == "high_cpu":
         return _high_cpu_log(svc, host, ts)
-    if scenario == "high_memory" or (force_anomaly and scenario is None and random.random() < 0.5):
+    if scenario == "high_memory":
         return _high_memory_log(svc, host, ts)
-    if scenario == "service_down" or force_anomaly:
+    if scenario == "service_down":
         return _service_down_log(svc, host, ts)
+    if scenario == "unknown":
+        return _unknown_issue_log(svc, host, ts)
 
-    # Random normal behaviour with occasional spikes
+    # Random behavior
     cpu = random.randint(5, 95)
     memory = random.randint(10, 95)
-    is_down = random.random() < 0.15   # 15% chance of service being down
-
-    status = "down" if is_down else "running"
-    error = random.choice(ERRORS.get(svc, ["unknown error"])) if is_down else None
+    is_down = random.random() < 0.15
 
     return {
         "id": f"log_{random.randint(1000, 9999)}",
         "timestamp": ts,
         "service": svc,
-        "status": status,
+        "status": "down" if is_down else "running",
         "cpu": cpu,
         "memory": memory,
-        "error": error,
+        "error": random.choice(ERRORS[svc]) if is_down else None,
         "host": host,
     }
 
@@ -112,13 +100,25 @@ def _service_down_log(svc, host, ts):
         "status": "down",
         "cpu": random.randint(10, 60),
         "memory": random.randint(10, 70),
-        "error": random.choice(ERRORS.get(svc, ["unknown error"])),
+        "error": random.choice(ERRORS[svc]),
         "host": host,
     }
 
 
-def load_logs_from_file(path: str = None) -> list:
-    """Load logs from the data/logs.json file."""
+def _unknown_issue_log(svc, host, ts):
+    return {
+        "id": f"log_{random.randint(1000, 9999)}",
+        "timestamp": ts,
+        "service": svc,
+        "status": "error",
+        "cpu": random.randint(40, 70),
+        "memory": random.randint(40, 70),
+        "error": "unexpected kernel panic in module xyz",
+        "host": host,
+    }
+
+
+def load_logs_from_file(path=None):
     if path is None:
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         path = os.path.join(base, "data", "logs.json")

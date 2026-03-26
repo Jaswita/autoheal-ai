@@ -1,33 +1,19 @@
 """
-Decision Agent – classifies the type of issue and decides the required action.
+Decision Agent – classifies issues and decides actions.
 """
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Severity levels
 SEVERITY_HIGH = "high"
 SEVERITY_MEDIUM = "medium"
 SEVERITY_LOW = "low"
 
 
 class DecisionAgent:
-    """Analyses anomalies detected by the Monitor Agent and produces a decision."""
 
     def decide(self, monitor_result: dict) -> dict:
-        """
-        Args:
-            monitor_result: output from MonitorAgent.analyze()
 
-        Returns:
-            {
-                "issue": str,
-                "severity": str,
-                "action_required": bool,
-                "recommended_action": str,
-                "details": dict
-            }
-        """
         if not monitor_result.get("anomaly_detected"):
             return {
                 "issue": "none",
@@ -40,79 +26,39 @@ class DecisionAgent:
         log = monitor_result.get("log", {})
         anomalies = monitor_result.get("anomalies", [])
 
-        issue, severity, recommended_action = self._classify(log, anomalies)
+        issue, severity, action = self._classify(log, anomalies)
 
-        logger.info(
-            "[DecisionAgent] Issue=%s | Severity=%s | Action=%s",
-            issue, severity, recommended_action,
-        )
+        logger.info(f"[Decision] {issue} | {severity}")
 
         return {
             "issue": issue,
             "severity": severity,
             "action_required": True,
-            "recommended_action": recommended_action,
-            "details": {
-                "service": log.get("service"),
-                "host": log.get("host"),
-                "cpu": log.get("cpu"),
-                "memory": log.get("memory"),
-                "error": log.get("error"),
-                "anomalies": anomalies,
-            },
+            "recommended_action": action,
+            "details": log,
         }
 
-    # ------------------------------------------------------------------
-    def _classify(self, log: dict, anomalies: list) -> tuple:
+    def _classify(self, log, anomalies):
         service = log.get("service", "unknown")
         cpu = int(log.get("cpu") or 0)
         memory = int(log.get("memory") or 0)
         status = str(log.get("status", "")).lower()
         error = (log.get("error") or "").lower()
 
-        # Service down takes highest priority
-        if status == "down":
-            issue = f"{service}_down"
-            severity = SEVERITY_HIGH
-            action = f"restart_{service}"
-            # Specialise based on error type
-            if "memory" in error or "oom" in error:
-                issue = f"{service}_oom"
-                action = f"free_memory_and_restart_{service}"
-                severity = SEVERITY_HIGH
-            elif "disk" in error:
-                issue = f"{service}_disk_full"
-                action = "clear_disk_space"
-                severity = SEVERITY_HIGH
-            elif "certificate" in error or "ssl" in error:
-                issue = f"{service}_ssl_error"
-                action = "renew_ssl_certificate"
-                severity = SEVERITY_MEDIUM
-            elif "timeout" in error:
-                issue = f"{service}_timeout"
-                action = f"increase_timeout_and_restart_{service}"
-                severity = SEVERITY_MEDIUM
-            return issue, severity, action
+        # Unknown (AI case)
+        if status == "error" and error:
+            return f"{service}_unknown_issue", SEVERITY_HIGH, f"investigate_{service}_with_ai"
 
-        # High memory (service still running)
+        # Service down
+        if status == "down":
+            return f"{service}_down", SEVERITY_HIGH, f"restart_{service}"
+
+        # High memory
         if memory > 90:
-            return (
-                f"{service}_high_memory",
-                SEVERITY_HIGH if memory > 95 else SEVERITY_MEDIUM,
-                f"reduce_memory_{service}",
-            )
+            return f"{service}_high_memory", SEVERITY_HIGH, f"reduce_memory_{service}"
 
         # High CPU
         if cpu > 90:
-            return (
-                f"{service}_high_cpu",
-                SEVERITY_HIGH if cpu > 95 else SEVERITY_MEDIUM,
-                f"throttle_cpu_{service}",
-            )
+            return f"{service}_high_cpu", SEVERITY_HIGH, f"throttle_cpu_{service}"
 
-        # Generic anomaly / error logged
-        return (
-            f"{service}_error",
-            SEVERITY_LOW,
-            f"investigate_{service}",
-        )
+        return f"{service}_error", SEVERITY_LOW, f"investigate_{service}"
