@@ -1,6 +1,6 @@
 """
 AutoHeal AI – Main FastAPI Application
-Enhanced for scenario testing, debugging, and UI clarity
+Real Gemini API integration + enhanced endpoints
 """
 import logging
 import os
@@ -11,6 +11,7 @@ from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 from agents.monitor_agent import MonitorAgent
 from agents.decision_agent import DecisionAgent
@@ -18,6 +19,7 @@ from agents.execution_agent import ExecutionAgent
 from agents.verification_agent import VerificationAgent
 from agents.audit_agent import AuditAgent
 from utils.log_simulator import generate_log, load_logs_from_file
+from utils.ai_helper import call_ai_freeform, GEMINI_API_KEY, _HTTPX_AVAILABLE
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -33,8 +35,8 @@ logger = logging.getLogger("autoheal")
 # ---------------------------------------------------------------------------
 app = FastAPI(
     title="AutoHeal AI",
-    description="Multi-Agent Autonomous Workflow Recovery System",
-    version="1.1.0",
+    description="Multi-Agent Autonomous Workflow Recovery System with Gemini AI",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -55,42 +57,61 @@ app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 # ---------------------------------------------------------------------------
 # Agents
 # ---------------------------------------------------------------------------
-monitor_agent = MonitorAgent()
-decision_agent = DecisionAgent()
-execution_agent = ExecutionAgent()
+monitor_agent    = MonitorAgent()
+decision_agent   = DecisionAgent()
+execution_agent  = ExecutionAgent()
 verification_agent = VerificationAgent()
-audit_agent = AuditAgent()
+audit_agent      = AuditAgent()
+
+# ---------------------------------------------------------------------------
+# In-memory stats tracker
+# ---------------------------------------------------------------------------
+_stats = {
+    "total_runs": 0,
+    "ai_fixes": 0,
+    "playbook_fixes": 0,
+    "resolved": 0,
+    "unresolved": 0,
+    "gemini_calls": 0,
+    "rule_engine_calls": 0,
+}
+
 
 # ---------------------------------------------------------------------------
 # Pipeline
 # ---------------------------------------------------------------------------
 def run_pipeline(log: dict) -> dict:
     run_id = str(uuid.uuid4())
-
     logger.info(f"[RUN START] {run_id}")
     logger.info(f"[INPUT LOG] {log}")
 
-    # Monitor
-    monitor_result = monitor_agent.analyze(log)
-    logger.info(f"[MONITOR] {monitor_result}")
+    monitor_result  = monitor_agent.analyze(log)
+    decision        = decision_agent.decide(monitor_result)
+    execution       = execution_agent.execute(decision)
+    verification    = verification_agent.verify(log, decision, execution)
 
-    # Decision
-    decision = decision_agent.decide(monitor_result)
-    logger.info(f"[DECISION] {decision}")
-
-    # Execution
-    execution = execution_agent.execute(decision)
-    logger.info(f"[EXECUTION] {execution}")
-
-    # Verification
-    verification = verification_agent.verify(log, decision, execution)
-    logger.info(f"[VERIFICATION] {verification}")
-
-    # Audit
     audit_entry = audit_agent.record(
         log, monitor_result, decision, execution, verification, run_id=run_id
     )
-    logger.info(f"[AUDIT] Recorded")
+
+    # Update global stats
+    _stats["total_runs"] += 1
+    src = execution.get("source", "")
+    if src in ("gemini",):
+        _stats["ai_fixes"] += 1
+        _stats["gemini_calls"] += 1
+    elif src in ("rule_engine", "fallback", "ai"):
+        _stats["ai_fixes"] += 1
+        _stats["rule_engine_calls"] += 1
+    else:
+        _stats["playbook_fixes"] += 1
+
+    if verification.get("resolved"):
+        _stats["resolved"] += 1
+    else:
+        _stats["unresolved"] += 1
+
+    logger.info(f"[RUN COMPLETE] {run_id}")
 
     return {
         "run_id": run_id,
@@ -100,16 +121,23 @@ def run_pipeline(log: dict) -> dict:
         "execution": execution,
         "verification": verification,
         "audit_entry": audit_entry,
-
-        # NEW: agent status for UI/debugging
         "agent_status": {
-            "monitor": "completed",
-            "decision": "completed",
-            "execution": "completed",
+            "monitor":      "completed",
+            "decision":     "completed",
+            "execution":    "completed",
             "verification": "completed",
-            "audit": "completed"
-        }
+            "audit":        "completed",
+        },
+        "ai_powered": execution.get("source") in ("gemini", "rule_engine", "ai"),
     }
+
+
+# ---------------------------------------------------------------------------
+# Request model for AI chat
+# ---------------------------------------------------------------------------
+class AIAnalyzeRequest(BaseModel):
+    prompt: str
+
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -128,20 +156,12 @@ def run_system(
     ),
     service: Optional[str] = Query(None),
 ):
-    """
-    Run pipeline with controlled scenarios.
-    """
-
-    # Force anomaly except healthy
     force = scenario not in (None, "healthy")
-
     log = generate_log(
         force_anomaly=force,
         service=service,
-        scenario=scenario if scenario != "unknown" else None
+        scenario=scenario if scenario != "unknown" else None,
     )
-
-    # Inject unknown error manually (AI test)
     if scenario == "unknown":
         log["status"] = "error"
         log["error"] = "unexpected kernel panic in module xyz"
@@ -182,9 +202,46 @@ def get_audit(limit: int = Query(50, ge=1, le=200)):
 @app.delete("/audit")
 def clear_audit():
     audit_agent.clear()
-    return {"message": "Audit trail cleared."}
+    # Reset stats too
+    for k in _stats:
+        _stats[k] = 0
+    return {"message": "Audit trail and stats cleared."}
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "gemini_configured": bool(GEMINI_API_KEY),
+        "httpx_available": _HTTPX_AVAILABLE,
+        "ai_mode": "gemini" if (GEMINI_API_KEY and _HTTPX_AVAILABLE) else "rule_engine",
+    }
+
+
+@app.get("/stats")
+def get_stats():
+    """Live statistics for the dashboard."""
+    total = _stats["total_runs"] or 1  # avoid div/0
+    return {
+        **_stats,
+        "resolution_rate": round(_stats["resolved"] / total * 100, 1),
+        "ai_fix_rate": round(_stats["ai_fixes"] / total * 100, 1),
+        "gemini_active": bool(GEMINI_API_KEY and _HTTPX_AVAILABLE),
+    }
+
+
+@app.post("/ai/analyze")
+def ai_analyze(body: AIAnalyzeRequest):
+    """
+    Free-form AI chat endpoint.
+    Routes directly to Gemini 1.5 Flash (or rule-engine fallback).
+    """
+    if not body.prompt.strip():
+        raise HTTPException(status_code=400, detail="Prompt cannot be empty.")
+
+    answer = call_ai_freeform(body.prompt)
+    return {
+        "prompt": body.prompt,
+        "response": answer,
+        "model": "gemini-1.5-flash" if (GEMINI_API_KEY and _SDK_AVAILABLE) else "rule_engine_fallback",
+    }
