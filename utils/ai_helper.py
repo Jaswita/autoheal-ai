@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-1.5-flash:generateContent"
+    "gemini-2.5-flash:generateContent"
 )
 
 # Try to import httpx (bundled with uvicorn[standard])
@@ -21,7 +21,7 @@ try:
     _HTTPX_AVAILABLE = True
 except ImportError:
     _HTTPX_AVAILABLE = False
-    logger.warning("[AI] httpx not installed – using rule-based fallback only.")
+    logger.warning("[AI] httpx not installed - using rule-based fallback only.")
 
 _SDK_AVAILABLE = False   # kept for compat with main.py health check
 

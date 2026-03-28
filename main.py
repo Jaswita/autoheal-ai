@@ -243,5 +243,5 @@ def ai_analyze(body: AIAnalyzeRequest):
     return {
         "prompt": body.prompt,
         "response": answer,
-        "model": "gemini-1.5-flash" if (GEMINI_API_KEY and _SDK_AVAILABLE) else "rule_engine_fallback",
+        "model": "gemini-2.5-flash" if (GEMINI_API_KEY and _HTTPX_AVAILABLE) else "rule_engine_fallback",
     }

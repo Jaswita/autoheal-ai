@@ -599,5 +599,266 @@
         }
       ]
     }
+  },
+  {
+    "run_id": "a9bb70c2-1a9f-4940-adbe-0afa9da82256",
+    "timestamp": "2026-03-28T15:32:50.625935Z",
+    "input_log": {
+      "id": "log_5576",
+      "timestamp": "2026-03-28T15:32:50.623233",
+      "service": "auth-service",
+      "status": "running",
+      "cpu": 39,
+      "memory": 61,
+      "error": null,
+      "host": "prod-server-02"
+    },
+    "monitor": {
+      "anomaly_detected": false,
+      "anomalies": []
+    },
+    "decision": {
+      "issue": "none",
+      "severity": "none",
+      "action_required": false,
+      "recommended_action": "no_action"
+    },
+    "execution": {
+      "action_taken": "no_action",
+      "source": "playbook",
+      "fix_detail": "System is healthy \u2014 no intervention needed.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "System healthy \u2013 no action was required.",
+      "checks": [
+        {
+          "name": "Health Probe",
+          "passed": true,
+          "detail": "Service responded normally"
+        },
+        {
+          "name": "CPU Baseline",
+          "passed": true,
+          "detail": "CPU within normal range"
+        },
+        {
+          "name": "Memory Baseline",
+          "passed": true,
+          "detail": "Memory within normal range"
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "ccc8bdca-cace-45f9-a619-a98af5f3a9f7",
+    "timestamp": "2026-03-28T15:33:13.380243Z",
+    "input_log": {
+      "id": "log_6866",
+      "timestamp": "2026-03-28T15:33:13.374604",
+      "service": "redis",
+      "status": "down",
+      "cpu": 40,
+      "memory": 35,
+      "error": "connection timeout",
+      "host": "prod-server-02"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "service_down:redis",
+        "error_reported:connection timeout"
+      ]
+    },
+    "decision": {
+      "issue": "redis_down",
+      "severity": "high",
+      "action_required": true,
+      "recommended_action": "restart_redis"
+    },
+    "execution": {
+      "action_taken": "systemctl restart redis",
+      "source": "playbook",
+      "fix_detail": "Known playbook fix applied for issue: redis_down",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "\u2705 Full recovery confirmed for 'redis_down'. All health checks passed.",
+      "checks": [
+        {
+          "name": "Service Health Probe",
+          "passed": true,
+          "detail": "HTTP 200 OK from /health endpoint"
+        },
+        {
+          "name": "CPU Utilisation",
+          "passed": true,
+          "detail": "CPU at 10% (threshold: 90%)"
+        },
+        {
+          "name": "Memory Utilisation",
+          "passed": true,
+          "detail": "Memory at 10% (threshold: 90%)"
+        },
+        {
+          "name": "Error Log Clearance",
+          "passed": true,
+          "detail": "No new errors in last 60s"
+        },
+        {
+          "name": "Network Connectivity",
+          "passed": true,
+          "detail": "Downstream services reachable"
+        },
+        {
+          "name": "Fix Applied",
+          "passed": true,
+          "detail": "Action executed via 'playbook': systemctl restart redis"
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "bc2a473d-1414-4c89-8867-1f12cd65fffc",
+    "timestamp": "2026-03-28T15:33:21.342525Z",
+    "input_log": {
+      "id": "log_4876",
+      "timestamp": "2026-03-28T15:33:21.337157",
+      "service": "redis",
+      "status": "down",
+      "cpu": 44,
+      "memory": 14,
+      "error": "connection timeout",
+      "host": "prod-server-01"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "service_down:redis",
+        "error_reported:connection timeout"
+      ]
+    },
+    "decision": {
+      "issue": "redis_down",
+      "severity": "high",
+      "action_required": true,
+      "recommended_action": "restart_redis"
+    },
+    "execution": {
+      "action_taken": "systemctl restart redis",
+      "source": "playbook",
+      "fix_detail": "Known playbook fix applied for issue: redis_down",
+      "simulated": true
+    },
+    "verification": {
+      "status": "failure",
+      "resolved": false,
+      "message": "\u274c Recovery failed for 'redis_down'. Escalation recommended.",
+      "checks": [
+        {
+          "name": "Service Health Probe",
+          "passed": false,
+          "detail": "Service still not responding"
+        },
+        {
+          "name": "CPU Utilisation",
+          "passed": true,
+          "detail": "CPU at 44% (threshold: 90%)"
+        },
+        {
+          "name": "Memory Utilisation",
+          "passed": true,
+          "detail": "Memory at 14% (threshold: 90%)"
+        },
+        {
+          "name": "Error Log Clearance",
+          "passed": true,
+          "detail": "No new errors in last 60s"
+        },
+        {
+          "name": "Network Connectivity",
+          "passed": true,
+          "detail": "Downstream services reachable"
+        },
+        {
+          "name": "Fix Applied",
+          "passed": true,
+          "detail": "Action executed via 'playbook': systemctl restart redis"
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "bd70a2b1-153a-413a-b7da-701b62be5844",
+    "timestamp": "2026-03-28T15:33:39.550947Z",
+    "input_log": {
+      "id": "log_4285",
+      "timestamp": "2026-03-28T15:33:34.009645",
+      "service": "message-queue",
+      "status": "error",
+      "cpu": 85,
+      "memory": 60,
+      "error": "unexpected kernel panic in module xyz",
+      "host": "prod-db-01"
+    },
+    "monitor": {
+      "anomaly_detected": true,
+      "anomalies": [
+        "error_reported:unexpected kernel panic in module xyz"
+      ]
+    },
+    "decision": {
+      "issue": "message-queue_unknown_issue",
+      "severity": "high",
+      "action_required": true,
+      "recommended_action": "investigate_message-queue_with_ai"
+    },
+    "execution": {
+      "action_taken": "AI Suggestion: sudo dmesg | tail -50 && systemctl restart message-queue",
+      "source": "rule_engine",
+      "fix_detail": "Kernel panic indicates a critical hardware or driver-level failure. Collecting kernel logs and restarting the service is the safest immediate action. Full root cause requires kernel dump analysis.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "\u2705 Full recovery confirmed for 'message-queue_unknown_issue'. All health checks passed.",
+      "checks": [
+        {
+          "name": "Service Health Probe",
+          "passed": true,
+          "detail": "HTTP 200 OK from /health endpoint"
+        },
+        {
+          "name": "CPU Utilisation",
+          "passed": true,
+          "detail": "CPU at 55% (threshold: 90%)"
+        },
+        {
+          "name": "Memory Utilisation",
+          "passed": true,
+          "detail": "Memory at 35% (threshold: 90%)"
+        },
+        {
+          "name": "Error Log Clearance",
+          "passed": true,
+          "detail": "No new errors in last 60s"
+        },
+        {
+          "name": "Network Connectivity",
+          "passed": true,
+          "detail": "Downstream services reachable"
+        },
+        {
+          "name": "Fix Applied",
+          "passed": true,
+          "detail": "Action executed via 'rule_engine': AI Suggestion: sudo dmesg | tail -50 && systemctl restart message-queue"
+        }
+      ]
+    }
   }
 ]
