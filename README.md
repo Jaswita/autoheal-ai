@@ -1,4 +1,4 @@
-# 🤖 AutoHeal AI – Multi-Agent Autonomous Workflow Recovery System
+#  AutoHeal AI – Multi-Agent Autonomous Workflow Recovery System
 
 > **Hackathon Project** · Agentic AI for Autonomous Enterprise Workflows
 
@@ -6,7 +6,7 @@ AutoHeal AI is a production-grade prototype where **five specialised AI agents**
 
 ---
 
-## 🏗 Architecture
+##  Architecture
 
 ```
 Monitor Agent → Decision Agent → Execution Agent → Verification Agent → Audit Agent
@@ -22,7 +22,7 @@ Monitor Agent → Decision Agent → Execution Agent → Verification Agent → 
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1 – Clone & enter project
 ```bash
@@ -80,7 +80,7 @@ uvicorn main:app --reload
 
 ---
 
-## 📦 Project Structure
+##  Project Structure
 
 ```
 autoheal-ai/
@@ -105,7 +105,7 @@ autoheal-ai/
 
 ---
 
-## 🧠 AI Integration
+##  AI Integration
 
 - **Primary**: Google Gemini 1.5 Flash (free tier) via `google-generativeai` SDK
 - **Fallback**: Rule-based remediation engine covering 15+ common error patterns
@@ -113,7 +113,7 @@ autoheal-ai/
 
 ---
 
-## 📊 Expected API Response
+##  Expected API Response
 
 ```json
 {
@@ -129,7 +129,7 @@ autoheal-ai/
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - **Backend**: Python 3.11+ · FastAPI · Uvicorn
 - **AI**: Google Gemini 1.5 Flash
