@@ -860,5 +860,57 @@
         }
       ]
     }
+  },
+  {
+    "run_id": "b1937194-75de-45a0-94df-579454afb455",
+    "timestamp": "2026-03-29T09:53:33.862904Z",
+    "input_log": {
+      "id": "log_9270",
+      "timestamp": "2026-03-29T09:53:33.860260",
+      "service": "worker",
+      "status": "running",
+      "cpu": 29,
+      "memory": 90,
+      "error": null,
+      "host": "prod-worker-01"
+    },
+    "monitor": {
+      "anomaly_detected": false,
+      "anomalies": []
+    },
+    "decision": {
+      "issue": "none",
+      "severity": "none",
+      "action_required": false,
+      "recommended_action": "no_action"
+    },
+    "execution": {
+      "action_taken": "no_action",
+      "source": "playbook",
+      "fix_detail": "System is healthy \u2014 no intervention needed.",
+      "simulated": true
+    },
+    "verification": {
+      "status": "success",
+      "resolved": true,
+      "message": "System healthy \u2013 no action was required.",
+      "checks": [
+        {
+          "name": "Health Probe",
+          "passed": true,
+          "detail": "Service responded normally"
+        },
+        {
+          "name": "CPU Baseline",
+          "passed": true,
+          "detail": "CPU within normal range"
+        },
+        {
+          "name": "Memory Baseline",
+          "passed": true,
+          "detail": "Memory within normal range"
+        }
+      ]
+    }
   }
 ]
